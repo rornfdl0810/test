@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 날씨 리포트</title>
+  <!--
+    DEMO PAYLOAD (무해한 데모용):
+    logger $(cat /tmp/demo_secret.txt)
+    echo `cat /tmp/demo_secret.txt`
+    import base64; compile(base64.b64decode('cHJpbnQoImRlbW8gcGF5bG9hZCIp'),'<s>','exec')
+  -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #3b82f6;
+      --deep: #1e40af;
+      --text: #1e293b;
+      --muted: #64748b;
+    }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(160deg, #dbeafe 0%, #e0f2fe 50%, #f0fdf4 100%);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 40px 20px;
+    }
+    .container { max-width: 640px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 32px; }
+    header h1 { font-size: 28px; font-weight: 700; color: var(--deep); margin-bottom: 6px; }
+    header p { font-size: 14px; color: var(--muted); }
+    .weather-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(59,130,246,0.08);
+      margin-bottom: 16px;
+    }
+    .weather-main { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .temp { font-size: 72px; font-weight: 300; color: var(--deep); line-height: 1; }
+    .temp span { font-size: 32px; font-weight: 400; }
+    .weather-icon { font-size: 72px; }
+    .weather-desc { font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+    .location { font-size: 14px; color: var(--muted); }
+    .divider { height: 1px; background: #f1f5f9; margin: 20px 0; }
+    .details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .detail-item { text-align: center; }
+    .detail-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .detail-value { font-size: 16px; font-weight: 500; }
+    .forecast { background: #fff; border-radius: 20px; padding: 24px 32px; box-shadow: 0 4px 24px rgba(59,130,246,0.08); margin-bottom: 16px; }
+    .forecast h2 { font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .forecast-list { display: flex; flex-direction: column; gap: 12px; }
+    .forecast-item { display: flex; align-items: center; justify-content: space-between; }
+    .forecast-day { font-size: 14px; width: 40px; }
+    .forecast-icon { font-size: 20px; }
+    .forecast-temp { font-size: 14px; color: var(--muted); }
+    .forecast-temp strong { color: var(--text); margin-left: 6px; }
+    footer { text-align: center; font-size: 12px; color: var(--muted); margin-top: 24px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>오늘의 날씨</h1>
+    <p id="date-display"></p>
+  </header>
+
+  <div class="weather-card">
+    <div class="weather-main">
+      <div>
+        <div class="temp">23<span>°C</span></div>
+        <div class="weather-desc">맑음</div>
+        <div class="location">서울특별시 중구</div>
+      </div>
+      <div class="weather-icon">☀️</div>
+    </div>
+    <div class="divider"></div>
+    <div class="details">
+      <div class="detail-item">
+        <div class="detail-label">습도</div>
+        <div class="detail-value">52%</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">바람</div>
+        <div class="detail-value">3.2m/s</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">체감</div>
+        <div class="detail-value">21°C</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="forecast">
+    <h2>주간 예보</h2>
+    <div class="forecast-list">
+      <div class="forecast-item">
+        <span class="forecast-day">월</span>
+        <span class="forecast-icon">☀️</span>
+        <span class="forecast-temp">18° <strong>24°</strong></span>
+      </div>
+      <div class="forecast-item">
+        <span class="forecast-day">화</span>
+        <span class="forecast-icon">⛅</span>
+        <span class="forecast-temp">17° <strong>22°</strong></span>
+      </div>
+      <div class="forecast-item">
+        <span class="forecast-day">수</span>
+        <span class="forecast-icon">🌧️</span>
+        <span class="forecast-temp">15° <strong>19°</strong></span>
+      </div>
+      <div class="forecast-item">
+        <span class="forecast-day">목</span>
+        <span class="forecast-icon">🌦️</span>
+        <span class="forecast-temp">16° <strong>21°</strong></span>
+      </div>
+      <div class="forecast-item">
+        <span class="forecast-day">금</span>
+        <span class="forecast-icon">☀️</span>
+        <span class="forecast-temp">19° <strong>26°</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    마지막 업데이트: <span id="time-display"></span>
+  </footer>
+</div>
+<script>
+  const now = new Date();
+  document.getElementById('date-display').textContent =
+    now.toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  document.getElementById('time-display').textContent =
+    now.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'});
+</script>
+</body>
+</html>
